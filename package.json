@@ -1,0 +1,56 @@
+{
+  "name": "@ruiapp/designer-hud",
+  "version": "0.0.5",
+  "main": "dist/mod.js",
+  "types": "dist/mod.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "rimraf dist && rollup --config",
+    "dev": "remix vite:dev",
+    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "remix-build": "remix vite:build",
+    "remix-start": "remix-serve ./build/server/index.js",
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.8.1",
+    "@remix-run/node": "^2.8.1",
+    "@remix-run/react": "^2.8.1",
+    "@remix-run/serve": "^2.8.1",
+    "@types/lodash": "^4.17.0",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
+    "eslint": "^8.38.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-import": "^2.28.1",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "isbot": "^4.1.0",
+    "lodash": "^4.17.21",
+    "rimraf": "^5.0.5",
+    "rollup": "^2.79.1",
+    "rollup-plugin-tsconfig-paths": "^1.5.2",
+    "rollup-plugin-typescript2": "^0.34.1",
+    "typescript": "^5.1.6",
+    "vite": "^5.1.0",
+    "vite-tsconfig-paths": "^4.2.1"
+  },
+  "peerDependencies": {
+    "@ruiapp/move-style": "^0.0.14",
+    "@ruiapp/react-renderer": "^0.0.14",
+    "lodash": "^4.17.21",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-draggable": "^4.4.6"
+  }
+}
