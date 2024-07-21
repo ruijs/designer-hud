@@ -55,13 +55,13 @@ export default function Index() {
         {
           $id: "designerHud",
           $type: "designerHud",
-          width: 1200,
-          height: 800,
-          widgets: hudItemsFromRockChildrenConfig(designingPageConfig.view),
+          width: 800,
+          height: 600,
+          widgets: designingPageConfig.view as any,
           onWidgetSelected: {
             $action: "script",
             script: (event: any) => {
-              console.log(event);
+              console.log("onWidgetSelected");
             },
           },
           onWidgetRectChange: [
@@ -81,7 +81,7 @@ export default function Index() {
                   height: widgetMovedPayload.height,
                 });
                 page.setComponentProperties("designerHud", {
-                  widgets: hudItemsFromRockChildrenConfig(designingPage.getConfig().view),
+                  widgets: designingPage.getConfig().view,
                 });
               },
             },
@@ -95,10 +95,10 @@ export default function Index() {
   return (
     <div
       style={{
-        width: "1200px",
-        height: "800px",
+        width: "800px",
+        height: "600px",
         margin: "100px auto",
-        border: "1px solid #000",
+        border: "10px solid #666",
       }}
     >
       <Rui framework={framework} page={page} />

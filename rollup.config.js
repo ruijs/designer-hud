@@ -17,5 +17,6 @@ export default {
     }),
     // tsConfigPaths(),
   ],
+
   external: ["@ant-design/icons", "@ruiapp/move-style", "@ruiapp/react-renderer", "antd", "axios", "dayjs", "lodash", "react", "react/jsx-runtime"],
 };

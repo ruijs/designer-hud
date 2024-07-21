@@ -2,45 +2,76 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Draggable, { DraggableEventHandler, DraggableProps } from "react-draggable";
-import { useRef, useState } from "react";
-import { HudWidgetHandlerMovingEvent } from "./designer-hud-types";
+import { MouseEventHandler, useCallback, useEffect, useRef, useState } from "react";
+import { HudWidgetHandlerDraggingEvent } from "../../types/designer-hud-types";
 
 export type DesignerHudWidgetResizeHandlerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "top" | "left" | "bottom" | "right";
 
-export type DesignerHudWidgetResizeHandlerPosition = {
-  left: number;
-  top: number;
+export type DragStartState = {
+  mouseClientX: number;
+  mouseClientY: number;
 };
+
+export type DragStartEventHandler = (event: DragStartState) => void;
 
 export type DesignerHudWidgetResizeHandlerProps = {
   type: DesignerHudWidgetResizeHandlerType;
-  position: DesignerHudWidgetResizeHandlerPosition;
-  onMoving: (payload: HudWidgetHandlerMovingEvent) => void;
+  left: number;
+  top: number;
+  onDragStart: (event: DragStartState) => void;
+  onDragging: (event: HudWidgetHandlerDraggingEvent) => void;
 };
 
 export default function DesignerHudWidgetResizeHandler(props: DesignerHudWidgetResizeHandlerProps) {
-  const { type, position } = props;
+  const { type, left, top, onDragStart, onDragging } = props;
   const nodeRef = useRef(null);
-  const [dragStartPos, setDragStartPos] = useState<DesignerHudWidgetResizeHandlerPosition | null>();
+  const [dragStartState, setDragStartState] = useState<DragStartState | null>();
 
-  const onDragStart: DraggableEventHandler = (event) => {
-    console.log("onDragStart");
-    setDragStartPos(props.position);
-    event.stopPropagation();
-  };
+  const onMouseMove = useCallback(
+    (event: MouseEvent) => {
+      if (!dragStartState) {
+        return;
+      }
 
-  const onDrag: DraggableEventHandler = (event, data) => {
-    console.log("onDrag", data);
-    props.onMoving({
-      deltaX: data.deltaX,
-      deltaY: data.deltaY,
-    });
-  };
+      const deltaX = event.clientX - dragStartState?.mouseClientX;
+      const deltaY = event.clientY - dragStartState?.mouseClientY;
+      onDragging({
+        deltaX,
+        deltaY,
+      });
+    },
+    [dragStartState, onDragging],
+  );
 
-  const onDragStop: DraggableEventHandler = (event, data) => {
-    console.log("onDragStop", data);
-    setDragStartPos(null);
-  };
+  const onMouseUp = useCallback(
+    (event: MouseEvent) => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    },
+    [onMouseMove],
+  );
+
+  useEffect(() => {
+    if (dragStartState) {
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    }
+  }, [dragStartState]);
+
+  const onMouseDown: MouseEventHandler = useCallback(
+    (event) => {
+      event.stopPropagation();
+
+      const state = {
+        mouseClientX: event.clientX,
+        mouseClientY: event.clientY,
+      };
+      setDragStartState(state);
+
+      onDragStart?.(state);
+    },
+    [onDragStart, setDragStartState],
+  );
 
   let styleOfHandlerType: React.CSSProperties = {};
   let dragAxis: DraggableProps["axis"] = "both";
@@ -67,26 +98,17 @@ export default function DesignerHudWidgetResizeHandler(props: DesignerHudWidgetR
   }
 
   return (
-    <Draggable
-      nodeRef={nodeRef}
-      axis={dragAxis}
-      onStart={onDragStart}
-      onDrag={onDrag}
-      onStop={onDragStop}
-      position={{
-        x: dragStartPos?.left || position.left,
-        y: dragStartPos?.top || position.top,
+    <div
+      ref={nodeRef}
+      style={{
+        ...styleHandlerCommon,
+        ...styleOfHandlerType,
+        position: "absolute",
+        top,
+        left,
       }}
-    >
-      <div
-        ref={nodeRef}
-        style={{
-          ...styleHandlerCommon,
-          ...styleOfHandlerType,
-          position: "absolute",
-        }}
-      ></div>
-    </Draggable>
+      onMouseDown={onMouseDown}
+    ></div>
   );
 }
 

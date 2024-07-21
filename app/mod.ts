@@ -9,5 +9,5 @@ export default {
   functions,
 } as RuiExtension;
 
-export * from "./rocks/designer-hud/designer-hud-types";
+export * from "./types/designer-hud-types";
 export * from "./rocks/designer-hud/RuiPageConnector";

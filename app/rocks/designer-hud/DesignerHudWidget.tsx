@@ -1,90 +1,192 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useRef, useState } from "react";
-import Draggable, { DraggableEventHandler } from "react-draggable";
-import { HudWidgetPosition, HudWidgetRectChangeEvent, HudWidgetSize } from "./designer-hud-types";
+import { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { HudWidgetRectChangeEvent, HudRect } from "~/types/designer-hud-types";
+import DesignerHudWidgetResizeHandler, { DragStartEventHandler } from "./DesignerHudWidgetResizeHandler";
+import { HudWidgetHandlerDraggingEvent } from "dist/rocks/designer-hud/designer-hud-types";
 
 export type DesignerHudWidgetItem = {
   id: string;
 };
 
 export type DesignerHudWidgetProps = {
-  item: DesignerHudWidgetItem;
-  size: HudWidgetSize;
-  position: HudWidgetPosition;
+  widgetId: string;
   isHovered?: boolean;
   isActive?: boolean;
-  onMouseEnter: any;
-  onMouseLeave: any;
-  onActive: any;
+  onMouseEnter?: any;
+  onMouseLeave?: any;
+  onActive?: any;
   onWidgetRectChange: (payload: HudWidgetRectChangeEvent) => void;
+} & HudRect;
+
+export type DragStartState = {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  mouseClientX: number;
+  mouseClientY: number;
 };
 
 export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
-  const { isHovered, isActive, size, position } = props;
+  const { widgetId, isHovered, isActive, left, top, width, height, onActive, onWidgetRectChange } = props;
   const nodeRef = useRef(null);
-  const [dragStartPos, setDragStartPos] = useState<HudWidgetPosition | null>();
-
-  const onDragStart: DraggableEventHandler = (event) => {
-    console.log("onDragStart");
-    setDragStartPos(props.position);
-    event.stopPropagation();
-    props.onActive();
-  };
-
-  const onDrag: DraggableEventHandler = (event, data) => {
-    console.log("onDrag", data);
-    props.onWidgetRectChange({
-      id: props.item.id,
-      left: data.x,
-      top: data.y,
-      width: props.size.width,
-      height: props.size.height,
-    });
-  };
-
-  const onDragStop: DraggableEventHandler = (event, data) => {
-    console.log("onDragStop", data);
-    setDragStartPos(null);
-    props.onWidgetRectChange({
-      id: props.item.id,
-      left: data.x,
-      top: data.y,
-      width: props.size.width,
-      height: props.size.height,
-    });
-  };
+  const [dragStartState, setDragStartState] = useState<DragStartState | null>();
 
   const styleIfHovered = isHovered ? styleHoveredItem : {};
   const styleIfActive = isActive ? styleActiveItem : {};
 
+  const onMouseMove = useCallback(
+    (event: MouseEvent) => {
+      if (!dragStartState) {
+        return;
+      }
+
+      const deltaX = event.clientX - dragStartState?.mouseClientX;
+      const deltaY = event.clientY - dragStartState?.mouseClientY;
+
+      props.onWidgetRectChange({
+        id: widgetId,
+        left: dragStartState.left + deltaX,
+        top: dragStartState.top + deltaY,
+        width: width,
+        height: height,
+      });
+    },
+    [dragStartState, widgetId, width, height],
+  );
+
+  const onMouseUp = useCallback(
+    (event: MouseEvent) => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+    },
+    [onMouseMove],
+  );
+
+  useEffect(() => {
+    if (dragStartState) {
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    }
+  }, [dragStartState]);
+
+  const onMouseDown: MouseEventHandler = useCallback(
+    (event) => {
+      event.stopPropagation();
+
+      onActive?.();
+
+      setDragStartState({
+        left: left,
+        top: top,
+        width: width,
+        height: height,
+        mouseClientX: event.clientX,
+        mouseClientY: event.clientY,
+      });
+    },
+    [onActive, setDragStartState],
+  );
+
+  const onResizeHandlerDragStart: DragStartEventHandler = useCallback((event) => {}, []);
+
+  const onTopLeftHandlerDragging = useCallback(
+    (event: HudWidgetHandlerDraggingEvent) => {
+      onWidgetRectChange({
+        id: widgetId,
+        left: left + event.deltaX,
+        top: top + event.deltaY,
+        width: Math.max(width - event.deltaX, 0),
+        height: Math.max(height - event.deltaY, 0),
+      } as HudWidgetRectChangeEvent);
+    },
+    [onWidgetRectChange, widgetId, left, top, width, height],
+  );
+
+  const onTopRightHandlerDragging = useCallback(
+    (event: HudWidgetHandlerDraggingEvent) => {
+      onWidgetRectChange({
+        id: widgetId,
+        left: left,
+        top: top + event.deltaY,
+        width: Math.max(width + event.deltaX, 0),
+        height: Math.max(height - event.deltaY, 0),
+      } as HudWidgetRectChangeEvent);
+    },
+    [onWidgetRectChange, widgetId, left, top, width, height],
+  );
+
+  const onBottomRightHandlerDragging = useCallback(
+    (event: HudWidgetHandlerDraggingEvent) => {
+      onWidgetRectChange({
+        id: widgetId,
+        left: left,
+        top: top,
+        width: Math.max(width + event.deltaX, 0),
+        height: Math.max(height + event.deltaY, 0),
+      } as HudWidgetRectChangeEvent);
+    },
+    [onWidgetRectChange, widgetId, left, top, width, height],
+  );
+
+  const onBottomLeftHandlerDragging = useCallback(
+    (event: HudWidgetHandlerDraggingEvent) => {
+      onWidgetRectChange({
+        id: widgetId,
+        left: left + event.deltaX,
+        top: top,
+        width: Math.max(width - event.deltaX, 0),
+        height: Math.max(height + event.deltaY, 0),
+      } as HudWidgetRectChangeEvent);
+    },
+    [onWidgetRectChange, widgetId, left, top, width, height],
+  );
+
   return (
-    <Draggable
-      nodeRef={nodeRef}
-      onStart={onDragStart}
-      onDrag={onDrag}
-      onStop={onDragStop}
-      position={{
-        x: dragStartPos?.left || position.left,
-        y: dragStartPos?.top || position.top,
+    <div
+      ref={nodeRef}
+      style={{
+        ...styleItem,
+        ...styleIfHovered,
+        ...styleIfActive,
+        position: "absolute",
+        width: width,
+        height: height,
+        left: left,
+        top: top,
+        zIndex: isActive ? 100 : 1,
       }}
+      onMouseDown={onMouseDown}
     >
-      <div
-        ref={nodeRef}
-        style={{
-          ...styleItem,
-          ...styleIfHovered,
-          ...styleIfActive,
-          position: "absolute",
-          width: size.width,
-          height: size.height,
-          zIndex: isActive ? 100 : 1,
-        }}
-        onMouseEnter={props.onMouseEnter}
-        onMouseLeave={props.onMouseLeave}
-      ></div>
-    </Draggable>
+      {isActive && (
+        <>
+          <DesignerHudWidgetResizeHandler type="topLeft" left={-4} top={-4} onDragStart={onResizeHandlerDragStart} onDragging={onTopLeftHandlerDragging} />
+          <DesignerHudWidgetResizeHandler
+            type="topRight"
+            left={width - 5}
+            top={-4}
+            onDragStart={onResizeHandlerDragStart}
+            onDragging={onTopRightHandlerDragging}
+          />
+          <DesignerHudWidgetResizeHandler
+            type="bottomRight"
+            left={width - 5}
+            top={height - 5}
+            onDragStart={onResizeHandlerDragStart}
+            onDragging={onBottomRightHandlerDragging}
+          />
+          <DesignerHudWidgetResizeHandler
+            type="bottomLeft"
+            left={-4}
+            top={height - 5}
+            onDragStart={onResizeHandlerDragStart}
+            onDragging={onBottomLeftHandlerDragging}
+          />
+        </>
+      )}
+    </div>
   );
 }
 
