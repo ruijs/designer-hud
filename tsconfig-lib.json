@@ -12,7 +12,7 @@
     "outDir": "./dist",
     "paths": {
       "~/*": ["./app/*"]
-    },
+    }
   },
   "exclude": ["app/**/*.spec.ts", "app/**/*.spec.tsx", "node_modules"],
   "include": ["app/**/*.js", "app/**/*.jsx", "app/**/*.ts", "app/**/*.tsx"]

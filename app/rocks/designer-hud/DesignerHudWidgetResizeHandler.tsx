@@ -1,48 +1,49 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Draggable, { DraggableEventHandler, DraggableProps } from 'react-draggable';
-import { useRef } from 'react';
-import { HudWidgetHandlerMovingEvent } from './designer-hud-types';
+import Draggable, { DraggableEventHandler, DraggableProps } from "react-draggable";
+import { useRef, useState } from "react";
+import { HudWidgetHandlerMovingEvent } from "./designer-hud-types";
 
-export type DesignerHudWidgetResizeHandlerType =
-  | "topLeft"
-  | "topRight"
-  | "bottomLeft"
-  | "bottomRight"
-  | "top"
-  | "left"
-  | "bottom"
-  | "right";
+export type DesignerHudWidgetResizeHandlerType = "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "top" | "left" | "bottom" | "right";
 
 export type DesignerHudWidgetResizeHandlerPosition = {
   left: number;
   top: number;
-}
+};
 
 export type DesignerHudWidgetResizeHandlerProps = {
   type: DesignerHudWidgetResizeHandlerType;
   position: DesignerHudWidgetResizeHandlerPosition;
   onMoving: (payload: HudWidgetHandlerMovingEvent) => void;
-}
+};
 
-export default  function DesignerHudWidgetResizeHandler(props: DesignerHudWidgetResizeHandlerProps) {
+export default function DesignerHudWidgetResizeHandler(props: DesignerHudWidgetResizeHandlerProps) {
   const { type, position } = props;
   const nodeRef = useRef(null);
+  const [dragStartPos, setDragStartPos] = useState<DesignerHudWidgetResizeHandlerPosition | null>();
 
   const onDragStart: DraggableEventHandler = (event) => {
+    console.log("onDragStart");
+    setDragStartPos(props.position);
     event.stopPropagation();
-  }
+  };
 
   const onDrag: DraggableEventHandler = (event, data) => {
+    console.log("onDrag", data);
     props.onMoving({
       deltaX: data.deltaX,
       deltaY: data.deltaY,
     });
-  }
+  };
+
+  const onDragStop: DraggableEventHandler = (event, data) => {
+    console.log("onDragStop", data);
+    setDragStartPos(null);
+  };
 
   let styleOfHandlerType: React.CSSProperties = {};
-  let dragAxis: DraggableProps["axis"] = 'both';
+  let dragAxis: DraggableProps["axis"] = "both";
   if (type === "topLeft") {
     styleOfHandlerType = styleHandlerTopLeft;
   } else if (type === "topRight") {
@@ -65,23 +66,28 @@ export default  function DesignerHudWidgetResizeHandler(props: DesignerHudWidget
     dragAxis = "x";
   }
 
-  return <Draggable
-    nodeRef={nodeRef}
-    axis={dragAxis}
-    onStart={onDragStart}
-    onDrag={onDrag}
-    position={{x: position.left, y: position.top }}
-  >
-    <div
-      ref={nodeRef}
-      style={{
-        ...styleHandlerCommon,
-        ...styleOfHandlerType,
-        position: "absolute",
+  return (
+    <Draggable
+      nodeRef={nodeRef}
+      axis={dragAxis}
+      onStart={onDragStart}
+      onDrag={onDrag}
+      onStop={onDragStop}
+      position={{
+        x: dragStartPos?.left || position.left,
+        y: dragStartPos?.top || position.top,
       }}
     >
-    </div>
-  </Draggable>
+      <div
+        ref={nodeRef}
+        style={{
+          ...styleHandlerCommon,
+          ...styleOfHandlerType,
+          position: "absolute",
+        }}
+      ></div>
+    </Draggable>
+  );
 }
 
 const primaryColor = `#C038FF`;
@@ -94,36 +100,36 @@ const styleHandlerCommon: React.CSSProperties = {
   border: `1px solid ${primaryColor}`,
   backgroundColor: "#fff",
   zIndex: 100,
-}
+};
 
 const styleHandlerTopLeft: React.CSSProperties = {
   cursor: "nwse-resize",
-}
+};
 
 const styleHandlerTopRight: React.CSSProperties = {
   cursor: "nesw-resize",
-}
+};
 
 const styleHandlerBottomLeft: React.CSSProperties = {
   cursor: "nesw-resize",
-}
+};
 
 const styleHandlerBottomRight: React.CSSProperties = {
   cursor: "nwse-resize",
-}
+};
 
 const styleHandlerTop: React.CSSProperties = {
   cursor: "ns-resize",
-}
+};
 
 const styleHandlerRight: React.CSSProperties = {
   cursor: "ew-resize",
-}
+};
 
 const styleHandlerBottom: React.CSSProperties = {
   cursor: "ns-resize",
-}
+};
 
 const styleHandlerLeft: React.CSSProperties = {
   cursor: "ew-resize",
-}
+};

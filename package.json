@@ -10,7 +10,8 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "remix-build": "remix vite:build",
     "remix-start": "remix-serve ./build/server/index.js",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "fmt:code": "prettier . --write"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.8.1",
@@ -39,8 +40,8 @@
     "vite-tsconfig-paths": "^4.2.1"
   },
   "peerDependencies": {
-    "@ruiapp/move-style": "^0.0.14",
-    "@ruiapp/react-renderer": "^0.0.14",
+    "@ruiapp/move-style": "^0.0.30",
+    "@ruiapp/react-renderer": "^0.0.28",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

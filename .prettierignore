@@ -1,0 +1,28 @@
+.cache
+build
+dist
+public
+.env
+.idea
+
+### OSX ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+**/.git
+**/.svn
+**/.hg
+**/node_modules
+**/.vscode
+
+.dockerignore
+.editorconfig
+.eslintrc
+.gitignore
+pnpm-lock.yaml
+pnpm-lock.yaml.sha1
