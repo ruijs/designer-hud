@@ -2,9 +2,8 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { HudWidgetRectChangeEvent, HudRect } from "~/types/designer-hud-types";
+import { HudWidgetRectChangeEvent, HudRect, HudWidgetHandlerDraggingEvent } from "~/types/designer-hud-types";
 import DesignerHudWidgetResizeHandler, { DragStartEventHandler } from "./DesignerHudWidgetResizeHandler";
-import { HudWidgetHandlerDraggingEvent } from "dist/rocks/designer-hud/designer-hud-types";
 
 export type DesignerHudWidgetItem = {
   id: string;
