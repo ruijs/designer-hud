@@ -61,7 +61,7 @@ export default function Index() {
           onWidgetSelected: {
             $action: "script",
             script: (event: any) => {
-              console.log("onWidgetSelected");
+              console.log("onWidgetSelected", event.args[0]);
             },
           },
           onWidgetRectChange: [

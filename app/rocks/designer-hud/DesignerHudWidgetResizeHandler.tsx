@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Draggable, { DraggableEventHandler, DraggableProps } from "react-draggable";
 import { MouseEventHandler, useCallback, useEffect, useRef, useState } from "react";
 import { HudWidgetHandlerDraggingEvent } from "../../types/designer-hud-types";
 
@@ -74,7 +73,6 @@ export default function DesignerHudWidgetResizeHandler(props: DesignerHudWidgetR
   );
 
   let styleOfHandlerType: React.CSSProperties = {};
-  let dragAxis: DraggableProps["axis"] = "both";
   if (type === "topLeft") {
     styleOfHandlerType = styleHandlerTopLeft;
   } else if (type === "topRight") {
@@ -85,16 +83,12 @@ export default function DesignerHudWidgetResizeHandler(props: DesignerHudWidgetR
     styleOfHandlerType = styleHandlerBottomRight;
   } else if (type === "top") {
     styleOfHandlerType = styleHandlerTop;
-    dragAxis = "y";
   } else if (type === "right") {
     styleOfHandlerType = styleHandlerRight;
-    dragAxis = "x";
   } else if (type === "bottom") {
     styleOfHandlerType = styleHandlerBottom;
-    dragAxis = "y";
   } else if (type === "left") {
     styleOfHandlerType = styleHandlerLeft;
-    dragAxis = "x";
   }
 
   return (

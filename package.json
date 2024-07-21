@@ -1,6 +1,6 @@
 {
   "name": "@ruiapp/designer-hud",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/mod.js",
   "types": "dist/mod.d.ts",
   "sideEffects": false,
@@ -18,7 +18,7 @@
     "@remix-run/node": "^2.8.1",
     "@remix-run/react": "^2.8.1",
     "@remix-run/serve": "^2.8.1",
-    "@types/lodash-es": "^4.17.12",
+    "@types/lodash": "^4.17.7",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
@@ -42,13 +42,11 @@
   "peerDependencies": {
     "@ruiapp/move-style": "^0.0.30",
     "@ruiapp/react-renderer": "^0.0.28",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "dependencies": {
-    "lodash-es": "^4.17.21"
   }
 }

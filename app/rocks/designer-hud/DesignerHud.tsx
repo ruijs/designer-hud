@@ -9,13 +9,13 @@ import { convertToEventHandlers } from "@ruiapp/react-renderer";
 
 import DesignerHudWidget from "./DesignerHudWidget";
 import { isPointInWidget } from "~/utils/position-utility";
-import { findLast } from "lodash-es";
+import _ from "lodash";
 
 export default {
   Renderer(context, props: DesignerHudRockConfig) {
     const { style, width, height, widgets } = props;
-    const [hoveredWidget, setHoveredWidget] = useState<HudWidget | null>(null);
-    const [activeWidget, setActiveWidget] = useState<HudWidget | null>(null);
+    const [hoveredWidgetId, setHoveredWidgetId] = useState<string | null>(null);
+    const [activeWidgetId, setActiveWidgetId] = useState<string | null>(null);
 
     const eventHandlers: Record<string, any> = convertToEventHandlers({ context, rockConfig: props });
 
@@ -26,9 +26,11 @@ export default {
         if (!div) {
           return { left: 0, top: 0 };
         }
+
+        const clientRect = div.getBoundingClientRect();
         return {
-          left: event.clientX - div.offsetLeft,
-          top: event.clientY - div.offsetTop,
+          left: event.clientX - clientRect.left,
+          top: event.clientY - clientRect.top,
         };
       },
       [refCtnr],
@@ -38,26 +40,43 @@ export default {
       (event) => {
         const pointerPosition = getPointerOffsetPosition(event);
 
-        const pointedWidget = findLast(widgets, isPointInWidget.bind(null, pointerPosition));
-        if (activeWidget != pointedWidget) {
-          setActiveWidget(pointedWidget || null);
-          eventHandlers.onWidgetSelected(pointedWidget);
-        }
+        const pointedWidget = _.findLast(widgets, isPointInWidget.bind(null, pointerPosition));
+        setActiveWidget(pointedWidget);
       },
-      [refCtnr, widgets, hoveredWidget],
+      [refCtnr, widgets, hoveredWidgetId, eventHandlers],
     );
 
     const onMouseMove: MouseEventHandler = useCallback(
       (event) => {
         const pointerPosition = getPointerOffsetPosition(event);
 
-        const pointedWidget = findLast(widgets, isPointInWidget.bind(null, pointerPosition));
-        if (hoveredWidget != pointedWidget) {
-          setHoveredWidget(pointedWidget || null);
+        const pointedWidget = _.findLast(widgets, isPointInWidget.bind(null, pointerPosition));
+        if (pointedWidget) {
+          if (pointedWidget.$id !== hoveredWidgetId) {
+            setHoveredWidgetId(pointedWidget.$id);
+          }
+        } else {
+          if (hoveredWidgetId) {
+            setHoveredWidgetId(null);
+          }
         }
       },
-      [refCtnr, widgets, hoveredWidget],
+      [refCtnr, widgets, hoveredWidgetId],
     );
+
+    const setActiveWidget = (widget: HudWidget | undefined) => {
+      if (widget) {
+        if (widget.$id !== activeWidgetId) {
+          eventHandlers.onWidgetSelected(widget);
+          setActiveWidgetId(widget.$id);
+        }
+      } else {
+        if (activeWidgetId) {
+          eventHandlers.onWidgetSelected(null);
+          setActiveWidgetId(null);
+        }
+      }
+    };
 
     return (
       <div
@@ -72,11 +91,11 @@ export default {
         {widgets &&
           widgets
             .filter((widget) => {
-              return widget.$id === hoveredWidget?.$id || widget.$id === activeWidget?.$id;
+              return widget.$id === hoveredWidgetId || widget.$id === activeWidgetId;
             })
             .map((widget) => {
-              const isHovered = widget.$id === hoveredWidget?.$id;
-              const isActive = widget.$id === activeWidget?.$id;
+              const isHovered = widget.$id === hoveredWidgetId;
+              const isActive = widget.$id === activeWidgetId;
               return (
                 <DesignerHudWidget
                   key={widget.$id}
