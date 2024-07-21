@@ -9,29 +9,24 @@ export interface DesignerHudRockConfig extends SimpleRockConfig {
   onWidgetRectChange: RockEventHandlerConfig;
 }
 
-export type HudWidgetSize = {
+export type HudSize = {
   width: number;
   height: number;
-}
+};
 
-export type HudWidgetPosition = {
+export type HudPosition = {
   top: number;
   left: number;
-}
+};
 
-export type HudRect = {
-  size: HudWidgetSize;
-  position: HudWidgetPosition;
-}
+export type HudRect = HudSize & HudPosition;
 
 export type HudWidget = HudSingleWidget;
 
 export type HudSingleWidget = {
-  type: "single",
-  id: string;
-  size: HudWidgetSize;
-  position: HudWidgetPosition;
-}
+  type: "single";
+  $id: string;
+} & HudRect;
 
 export type HudWidgetRectChangeEvent = {
   id: string;
@@ -39,9 +34,9 @@ export type HudWidgetRectChangeEvent = {
   left: number;
   width: number;
   height: number;
-}
+};
 
-export type HudWidgetHandlerMovingEvent = {
+export type HudWidgetHandlerDraggingEvent = {
   deltaX: number;
   deltaY: number;
-}
+};

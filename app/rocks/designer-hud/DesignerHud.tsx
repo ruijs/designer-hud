@@ -3,198 +3,101 @@
 /* eslint-disable react/prop-types */
 import type { Rock } from "@ruiapp/move-style";
 import DesignerHudMeta from "./DesignerHudMeta";
-import type { DesignerHudRockConfig, HudRect, HudWidgetHandlerMovingEvent, HudWidgetRectChangeEvent } from "./designer-hud-types";
-import { useMemo, useState } from "react";
+import type { DesignerHudRockConfig, HudPosition, HudWidget } from "~/types/designer-hud-types";
+import { MouseEventHandler, useCallback, useMemo, useRef, useState } from "react";
 import { convertToEventHandlers } from "@ruiapp/react-renderer";
 
 import DesignerHudWidget from "./DesignerHudWidget";
-import DesignerHudWidgetResizeHandler, { DesignerHudWidgetResizeHandlerPosition } from "./DesignerHudWidgetResizeHandler";
-
+import { isPointInWidget } from "~/utils/position-utility";
+import { findLast } from "lodash-es";
 
 export default {
-
   Renderer(context, props: DesignerHudRockConfig) {
     const { style, width, height, widgets } = props;
-    const [ hoveredWidgetId, setHoveredWidgetId ] = useState<string | null>(null);
-    const [ activeWidgetId, setActiveWidgetId ] = useState<string | null>(null);
+    const [hoveredWidget, setHoveredWidget] = useState<HudWidget | null>(null);
+    const [activeWidget, setActiveWidget] = useState<HudWidget | null>(null);
 
-    const eventHandlers: Record<string, any> = convertToEventHandlers({context, rockConfig: props});
+    const eventHandlers: Record<string, any> = convertToEventHandlers({ context, rockConfig: props });
 
-    const setActiveWidget = (componentId: string) => {
-      if (activeWidgetId === componentId) {
-        return;
-      }
+    const refCtnr = useRef<HTMLDivElement>(null);
+    const getPointerOffsetPosition = useCallback(
+      (event: React.MouseEvent): HudPosition => {
+        const div = refCtnr.current;
+        if (!div) {
+          return { left: 0, top: 0 };
+        }
+        return {
+          left: event.clientX - div.offsetLeft,
+          top: event.clientY - div.offsetTop,
+        };
+      },
+      [refCtnr],
+    );
 
-      setActiveWidgetId(componentId);
-      eventHandlers.onWidgetSelected(componentId);
-    }
+    const onMouseDown: MouseEventHandler = useCallback(
+      (event) => {
+        const pointerPosition = getPointerOffsetPosition(event);
 
-    const selectedWidgets = useMemo(() => {
-      return widgets.filter((widget) => widget.id === activeWidgetId);
-    }, [activeWidgetId, widgets]);
+        const pointedWidget = findLast(widgets, isPointInWidget.bind(null, pointerPosition));
+        if (activeWidget != pointedWidget) {
+          setActiveWidget(pointedWidget || null);
+          eventHandlers.onWidgetSelected(pointedWidget);
+        }
+      },
+      [refCtnr, widgets, hoveredWidget],
+    );
 
-    const selectedRect: HudRect | null = useMemo(() => {
-      if (!selectedWidgets || !selectedWidgets.length) {
-        return null;
-      }
+    const onMouseMove: MouseEventHandler = useCallback(
+      (event) => {
+        const pointerPosition = getPointerOffsetPosition(event);
 
-      return {
-        position: selectedWidgets[0].position,
-        size: selectedWidgets[0].size,
-      }
-    }, [selectedWidgets]);
+        const pointedWidget = findLast(widgets, isPointInWidget.bind(null, pointerPosition));
+        if (hoveredWidget != pointedWidget) {
+          setHoveredWidget(pointedWidget || null);
+        }
+      },
+      [refCtnr, widgets, hoveredWidget],
+    );
 
-    const onTopLeftHandlerMoving = (event: HudWidgetHandlerMovingEvent) => {
-      if (!selectedRect) {
-        return;
-      }
-
-      eventHandlers.onWidgetRectChange({
-        id: activeWidgetId,
-        left: selectedRect.position.left + event.deltaX,
-        top: selectedRect.position.top + event.deltaY,
-        width: Math.max(selectedRect.size.width - event.deltaX, 0),
-        height: Math.max(selectedRect.size.height - event.deltaY, 0),
-      } as HudWidgetRectChangeEvent)
-    }
-
-    const onTopRightHandlerMoving = (event: HudWidgetHandlerMovingEvent) => {
-      if (!selectedRect) {
-        return;
-      }
-
-      eventHandlers.onWidgetRectChange({
-        id: activeWidgetId,
-        left: selectedRect.position.left,
-        top: selectedRect.position.top + event.deltaY,
-        width: Math.max(selectedRect.size.width + event.deltaX, 0),
-        height: Math.max(selectedRect.size.height - event.deltaY, 0),
-      } as HudWidgetRectChangeEvent)
-    }
-
-    const onBottomRightHandlerMoving = (event: HudWidgetHandlerMovingEvent) => {
-      if (!selectedRect) {
-        return;
-      }
-
-      eventHandlers.onWidgetRectChange({
-        id: activeWidgetId,
-        left: selectedRect.position.left,
-        top: selectedRect.position.top,
-        width: Math.max(selectedRect.size.width + event.deltaX, 0),
-        height: Math.max(selectedRect.size.height + event.deltaY, 0),
-      } as HudWidgetRectChangeEvent)
-    }
-
-    const onBottomLeftHandlerMoving = (event: HudWidgetHandlerMovingEvent) => {
-      if (!selectedRect) {
-        return;
-      }
-
-      eventHandlers.onWidgetRectChange({
-        id: activeWidgetId,
-        left: selectedRect.position.left + event.deltaX,
-        top: selectedRect.position.top,
-        width: Math.max(selectedRect.size.width - event.deltaX, 0),
-        height: Math.max(selectedRect.size.height + event.deltaY, 0),
-      } as HudWidgetRectChangeEvent)
-    }
-
-    const topLeftHandlerPos: DesignerHudWidgetResizeHandlerPosition | null = useMemo(() => {
-      if (!selectedRect) {
-        return null;
-      }
-
-      return {
-        top: selectedRect.position.top - 3,
-        left: selectedRect.position.left - 3,
-      };
-    }, [selectedRect]);
-
-    const topRightHandlerPos: DesignerHudWidgetResizeHandlerPosition | null = useMemo(() => {
-      if (!selectedRect) {
-        return null;
-      }
-
-      return {
-        top: selectedRect.position.top - 3,
-        left: selectedRect.position.left + selectedRect.size.width - 4,
-      };
-    }, [selectedRect]);
-
-    const bottomRightHandlerPos: DesignerHudWidgetResizeHandlerPosition | null = useMemo(() => {
-      if (!selectedRect) {
-        return null;
-      }
-
-      return {
-        top: selectedRect.position.top + selectedRect.size.height - 4,
-        left: selectedRect.position.left + selectedRect.size.width - 4,
-      };
-    }, [selectedRect]);
-
-    const bottomLeftHandlerPos: DesignerHudWidgetResizeHandlerPosition | null = useMemo(() => {
-      if (!selectedRect) {
-        return null;
-      }
-
-      return {
-        top: selectedRect.position.top + selectedRect.size.height - 4,
-        left: selectedRect.position.left - 3,
-      };
-    }, [selectedRect]);
-
-    return <div
-      style={{
-        ...getStyleHud(width, height),
-        ...style,
-      }}
-    >
-      {
-        widgets && widgets.map((widget) => {
-          const isHovered = widget.id === hoveredWidgetId;
-          const isActive = widget.id === activeWidgetId;
-          return <DesignerHudWidget
-            key={widget.id}
-            item={{id: widget.id}}
-            isHovered={isHovered}
-            isActive={isActive}
-            position={widget.position}
-            size={widget.size}
-            onMouseEnter={() => setHoveredWidgetId(widget.id)}
-            onMouseLeave={() => setHoveredWidgetId(null)}
-            onActive={setActiveWidget.bind(null, widget.id)}
-            onWidgetRectChange={eventHandlers.onWidgetRectChange}
-          />
-        })
-      }
-      {
-        selectedRect && <>
-          <DesignerHudWidgetResizeHandler type="topLeft"
-            position={topLeftHandlerPos!}
-            onMoving={onTopLeftHandlerMoving}
-          />
-          <DesignerHudWidgetResizeHandler type="topRight"
-            position={topRightHandlerPos!}
-            onMoving={onTopRightHandlerMoving}
-          />
-          <DesignerHudWidgetResizeHandler type="bottomRight"
-            position={bottomRightHandlerPos!}
-            onMoving={onBottomRightHandlerMoving}
-          />
-          <DesignerHudWidgetResizeHandler type="bottomLeft"
-            position={bottomLeftHandlerPos!}
-            onMoving={onBottomLeftHandlerMoving}
-          />
-        </>
-      }
-    </div>
+    return (
+      <div
+        style={{
+          ...getStyleHud(width, height),
+          ...style,
+        }}
+        ref={refCtnr}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+      >
+        {widgets &&
+          widgets
+            .filter((widget) => {
+              return widget.$id === hoveredWidget?.$id || widget.$id === activeWidget?.$id;
+            })
+            .map((widget) => {
+              const isHovered = widget.$id === hoveredWidget?.$id;
+              const isActive = widget.$id === activeWidget?.$id;
+              return (
+                <DesignerHudWidget
+                  key={widget.$id}
+                  widgetId={widget.$id}
+                  isHovered={isHovered}
+                  isActive={isActive}
+                  left={widget.left}
+                  top={widget.top}
+                  width={widget.width}
+                  height={widget.height}
+                  onActive={setActiveWidget.bind(null, widget)}
+                  onWidgetRectChange={eventHandlers.onWidgetRectChange}
+                />
+              );
+            })}
+      </div>
+    );
   },
 
   ...DesignerHudMeta,
 } as Rock;
-
-
 
 function getStyleHud(width: number, height: number) {
   const style: React.CSSProperties = {
@@ -204,4 +107,3 @@ function getStyleHud(width: number, height: number) {
   };
   return style;
 }
-

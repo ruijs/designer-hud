@@ -1,5 +1,3 @@
 import DesignerHud from "./designer-hud/DesignerHud";
 
-export default [
-  DesignerHud,
-]
+export default [DesignerHud];
