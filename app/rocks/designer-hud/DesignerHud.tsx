@@ -10,6 +10,7 @@ import { convertToEventHandlers } from "@ruiapp/react-renderer";
 import DesignerHudWidget from "./DesignerHudWidget";
 import { isPointInWidget } from "~/utils/position-utility";
 import _ from "lodash";
+const { findLast } = _;
 
 export default {
   Renderer(context, props: DesignerHudRockConfig) {
@@ -40,7 +41,7 @@ export default {
       (event) => {
         const pointerPosition = getPointerOffsetPosition(event);
 
-        const pointedWidget = _.findLast(widgets, isPointInWidget.bind(null, pointerPosition));
+        const pointedWidget = findLast(widgets, isPointInWidget.bind(null, pointerPosition));
         setActiveWidget(pointedWidget);
       },
       [refCtnr, widgets, hoveredWidgetId, eventHandlers],
@@ -50,7 +51,7 @@ export default {
       (event) => {
         const pointerPosition = getPointerOffsetPosition(event);
 
-        const pointedWidget = _.findLast(widgets, isPointInWidget.bind(null, pointerPosition));
+        const pointedWidget = findLast(widgets, isPointInWidget.bind(null, pointerPosition));
         if (pointedWidget) {
           if (pointedWidget.$id !== hoveredWidgetId) {
             setHoveredWidgetId(pointedWidget.$id);
