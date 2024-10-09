@@ -17,6 +17,7 @@ export type DesignerHudWidgetProps = {
   onMouseLeave?: any;
   onActive?: any;
   onWidgetRectChange: (payload: HudWidgetRectChangeEvent) => void;
+  onShortKeyEventHandle: (payload: { type: string; widgetId: string }) => void;
 } & HudRect;
 
 export type DragStartState = {
@@ -29,12 +30,13 @@ export type DragStartState = {
 };
 
 export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
-  const { widgetId, isHovered, isActive, left, top, width, height, onActive, onWidgetRectChange } = props;
+  const { widgetId, isHovered, isActive, left, top, width, height, onActive, onWidgetRectChange, onShortKeyEventHandle } = props;
   const nodeRef = useRef(null);
   const [dragStartState, setDragStartState] = useState<DragStartState | null>();
 
   const styleIfHovered = isHovered ? styleHoveredItem : {};
   const styleIfActive = isActive ? styleActiveItem : {};
+  let copyId = "";
 
   const onMouseMove = useCallback(
     (event: MouseEvent) => {
@@ -74,6 +76,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
   const onMouseDown: MouseEventHandler = useCallback(
     (event) => {
       event.stopPropagation();
+      console.log("moseDown");
 
       onActive?.();
 
@@ -88,6 +91,114 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
     },
     [onActive, setDragStartState],
   );
+
+  const onKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (event) => {
+    const eventType = {
+      ArrowDown: {
+        key: "ArrowDown",
+      },
+      ArrowUp: {
+        key: "ArrowUp",
+      },
+      ArrowRight: {
+        key: "ArrowRight",
+      },
+      ArrowLeft: {
+        key: "ArrowLeft",
+      },
+      copy: {
+        key: "c",
+        ctrlKey: true,
+      },
+      cut: {
+        key: "x",
+        ctrlKey: true,
+      },
+      paste: {
+        key: "v",
+        ctrlKey: true,
+      },
+      delete: {
+        key: "Delete",
+      },
+    };
+
+    if (event.type !== "keydown") return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.nativeEvent.stopImmediatePropagation();
+
+    // move
+    if (
+      event.key === eventType.ArrowDown.key ||
+      event.key === eventType.ArrowUp.key ||
+      event.key === eventType.ArrowLeft.key ||
+      event.key === eventType.ArrowRight.key
+    ) {
+      console.log("move", event);
+      let leftVal = left;
+      let topVal = top;
+      const step = 1;
+
+      if (event.key === eventType.ArrowDown.key) {
+        topVal = topVal + step;
+      }
+
+      if (event.key === eventType.ArrowUp.key) {
+        topVal = topVal - step;
+      }
+
+      if (event.key === eventType.ArrowLeft.key) {
+        leftVal = leftVal - step;
+      }
+
+      if (event.key === eventType.ArrowRight.key) {
+        leftVal = leftVal + step;
+      }
+
+      onWidgetRectChange({
+        id: widgetId,
+        left: leftVal,
+        top: topVal,
+        width: width,
+        height: height,
+      } as HudWidgetRectChangeEvent);
+    }
+
+    // copy
+    if (event.key === eventType.copy.key && event.ctrlKey === eventType.copy.ctrlKey) {
+      copyId = widgetId;
+      onShortKeyEventHandle({
+        widgetId,
+        type: "copy",
+      });
+    }
+
+    // cut
+    if (event.key === eventType.cut.key && event.ctrlKey === eventType.cut.ctrlKey) {
+      copyId = widgetId;
+      onShortKeyEventHandle({
+        widgetId,
+        type: "cut",
+      });
+    }
+
+    // paste
+    if (event.key === eventType.paste.key && event.ctrlKey === eventType.paste.ctrlKey) {
+      onShortKeyEventHandle({
+        widgetId,
+        type: "paste",
+      });
+    }
+
+    // delete
+    if (event.key === eventType.delete.key) {
+      onShortKeyEventHandle({
+        widgetId,
+        type: "delete",
+      });
+    }
+  };
 
   const onResizeHandlerDragStart: DragStartEventHandler = useCallback((event) => {}, []);
 
@@ -145,6 +256,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
 
   return (
     <div
+      tabIndex={0}
       ref={nodeRef}
       style={{
         ...styleItem,
@@ -158,6 +270,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         zIndex: isActive ? 100 : 1,
       }}
       onMouseDown={onMouseDown}
+      onKeyDown={onKeyDown}
     >
       {isActive && (
         <>
