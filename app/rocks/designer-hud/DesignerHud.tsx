@@ -108,6 +108,7 @@ export default {
                   height={widget.height}
                   onActive={setActiveWidget.bind(null, widget)}
                   onWidgetRectChange={eventHandlers.onWidgetRectChange}
+                  onShortKeyEventHandle={eventHandlers.onShortKeyEventHandle}
                 />
               );
             })}
