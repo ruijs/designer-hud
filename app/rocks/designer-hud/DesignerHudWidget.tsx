@@ -76,7 +76,6 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
   const onMouseDown: MouseEventHandler = useCallback(
     (event) => {
       event.stopPropagation();
-      console.log("moseDown");
 
       onActive?.();
 
@@ -135,7 +134,6 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
       event.key === eventType.ArrowLeft.key ||
       event.key === eventType.ArrowRight.key
     ) {
-      console.log("move", event);
       let leftVal = left;
       let topVal = top;
       const step = 1;
