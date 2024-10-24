@@ -98,7 +98,6 @@ export default {
 
       // paste
       if (event.key === eventType.quash.key && event.ctrlKey === eventType.quash.ctrlKey) {
-        console.log("quash");
         eventHandlers.onShortKeyEventHandle({
           type: "quash",
         });
