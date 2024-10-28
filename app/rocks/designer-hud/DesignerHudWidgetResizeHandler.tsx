@@ -15,14 +15,16 @@ export type DragStartEventHandler = (event: DragStartState) => void;
 
 export type DesignerHudWidgetResizeHandlerProps = {
   type: DesignerHudWidgetResizeHandlerType;
-  left: number;
-  top: number;
+  left?: number;
+  top?: number;
+  right?: number;
+  bottom?: number;
   onDragStart: (event: DragStartState) => void;
   onDragging: (event: HudWidgetHandlerDraggingEvent) => void;
 };
 
 export default function DesignerHudWidgetResizeHandler(props: DesignerHudWidgetResizeHandlerProps) {
-  const { type, left, top, onDragStart, onDragging } = props;
+  const { type, left, top, right, bottom, onDragStart, onDragging } = props;
   const nodeRef = useRef(null);
   const [dragStartState, setDragStartState] = useState<DragStartState | null>();
 
@@ -111,8 +113,8 @@ const primaryColor = `#C038FF`;
 const styleHandlerCommon: React.CSSProperties = {
   boxSizing: "border-box",
   position: "absolute",
-  width: "7px",
-  height: "7px",
+  width: 7,
+  height: 7,
   border: `1px solid ${primaryColor}`,
   backgroundColor: "#fff",
   zIndex: 100,
