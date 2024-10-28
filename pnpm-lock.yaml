@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@ruiapp/move-style':
-        specifier: ^0.3.6
-        version: 0.3.6(lodash@4.17.21)
+        specifier: ^0.3.10
+        version: 0.3.10(lodash@4.17.21)
       '@ruiapp/react-renderer':
-        specifier: ^0.3.4
-        version: 0.3.4(@ruiapp/move-style@0.3.6(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        specifier: ^0.3.5
+        version: 0.3.5(@ruiapp/move-style@0.3.10(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -791,15 +791,15 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@ruiapp/move-style@0.3.6':
-    resolution: {integrity: sha512-6YOCj8kHQHN+AXggQif/qDEvsmtbb8wEo+h9FaOfQoUDMkD9PguSoxTv4D5vBX4KWMTMuEn3YmfCa46SeFbqdg==}
+  '@ruiapp/move-style@0.3.10':
+    resolution: {integrity: sha512-ndsIzK+C5NW4TQ7v13dtk4bdi73NW7y3jMYdgCNIjrLOKTX3+8FOaV1hWaFXjZa+e2D5S+ku4LisIDxK3jt7gg==}
     peerDependencies:
       lodash: ^4.17.21
 
-  '@ruiapp/react-renderer@0.3.4':
-    resolution: {integrity: sha512-pgtFTYv0nIK9A40yJ3UekwGUZfvLkh24r7vgyt2uw9sGNzZr5DnGNKA7AKzaYKF53Uqoo+xXL9GzHRsYbL60Tg==}
+  '@ruiapp/react-renderer@0.3.5':
+    resolution: {integrity: sha512-HTYVH4n/+1iJHbunwq4mDjclKejPnExS06SIvj3jnfbZcLItJXnXcTV2NWPT/MJAaTryaesrlUTAJ/zZCGHJVg==}
     peerDependencies:
-      '@ruiapp/move-style': ^0.3.4
+      '@ruiapp/move-style': ^0.3.10
       react: ^18.2.0
       react-dom: ^18.2.0
 
@@ -4132,7 +4132,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.14.0':
     optional: true
 
-  '@ruiapp/move-style@0.3.6(lodash@4.17.21)':
+  '@ruiapp/move-style@0.3.10(lodash@4.17.21)':
     dependencies:
       axios: 1.6.8
       events: 3.3.0
@@ -4141,9 +4141,9 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@ruiapp/react-renderer@0.3.4(@ruiapp/move-style@0.3.6(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
+  '@ruiapp/react-renderer@0.3.5(@ruiapp/move-style@0.3.10(lodash@4.17.21))(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
-      '@ruiapp/move-style': 0.3.6(lodash@4.17.21)
+      '@ruiapp/move-style': 0.3.10(lodash@4.17.21)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
