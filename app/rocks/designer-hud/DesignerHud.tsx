@@ -79,15 +79,50 @@ export default {
       }
     };
 
+    const onKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (event) => {
+      const eventType = {
+        quash: {
+          key: "z",
+          ctrlKey: true,
+        },
+        redo: {
+          key: "y",
+          ctrlKey: true,
+        },
+      };
+
+      if (event.type !== "keydown") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.nativeEvent.stopImmediatePropagation();
+
+      // paste
+      if (event.key === eventType.quash.key && event.ctrlKey === eventType.quash.ctrlKey) {
+        eventHandlers.onShortKeyEventHandle({
+          type: "quash",
+        });
+      }
+
+      // redo
+      if (event.key === eventType.redo.key && event.ctrlKey === eventType.redo.ctrlKey) {
+        eventHandlers.onShortKeyEventHandle({
+          type: "redo",
+        });
+      }
+    };
+
     return (
       <div
         style={{
           ...getStyleHud(width, height),
           ...style,
         }}
+        tabIndex={0}
         ref={refCtnr}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
+        onKeyDown={onKeyDown}
       >
         {widgets &&
           widgets
