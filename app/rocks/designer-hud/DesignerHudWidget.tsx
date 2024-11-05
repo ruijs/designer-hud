@@ -202,7 +202,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
 
     // drag
     if (event.key === eventType.drag.key) {
-      shiftPressed = true
+      shiftPressed = true;
     }
   };
 
@@ -212,11 +212,10 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
     }
   };
 
-  const onResizeHandlerDragStart: DragStartEventHandler = useCallback((event) => { }, []);
+  const onResizeHandlerDragStart: DragStartEventHandler = useCallback((event) => {}, []);
 
   const onTopLeftHandlerDragging = useCallback(
     (event: HudWidgetHandlerDraggingEvent) => {
-      console.log("onTopLeftHandlerDragging", event);
       onWidgetRectChange({
         id: widgetId,
         left: left + event.deltaX,
@@ -273,7 +272,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         id: widgetId,
         left: left,
         top: top + event.deltaY,
-        width: Math.max(shiftPressed ? (((height - event.deltaY) * width) / height) : width, 0),
+        width: Math.max(shiftPressed ? ((height - event.deltaY) * width) / height : width, 0),
         height: Math.max(height - event.deltaY, 0),
       } as HudWidgetRectChangeEvent);
     },
@@ -282,7 +281,6 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
 
   const onRightHandlerDragging = useCallback(
     (event: HudWidgetHandlerDraggingEvent) => {
-      console.log("onRightHandlerDragging", shiftPressed);
       onWidgetRectChange({
         id: widgetId,
         left: left,
@@ -300,7 +298,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         id: widgetId,
         left: left,
         top: top,
-        width: Math.max(shiftPressed ? (((height + event.deltaY) * width) / height) : width, 0),
+        width: Math.max(shiftPressed ? ((height + event.deltaY) * width) / height : width, 0),
         height: Math.max(height + event.deltaY, 0),
       } as HudWidgetRectChangeEvent);
     },
@@ -314,12 +312,11 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         left: left + event.deltaX,
         top: top,
         width: Math.max(width - event.deltaX, 0),
-        height: Math.max(shiftPressed ? (((width - event.deltaX) * height) / width) : height, 0),
+        height: Math.max(shiftPressed ? ((width - event.deltaX) * height) / width : height, 0),
       } as HudWidgetRectChangeEvent);
     },
     [onWidgetRectChange, widgetId, left, top, width, height],
   );
-
 
   return (
     <div
@@ -364,13 +361,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
             onDragStart={onResizeHandlerDragStart}
             onDragging={onBottomLeftHandlerDragging}
           />
-          <DesignerHudWidgetResizeHandler
-            type="top"
-            left={width / 2 - 3}
-            top={-4}
-            onDragStart={onResizeHandlerDragStart}
-            onDragging={onTopHandlerDragging}
-          />
+          <DesignerHudWidgetResizeHandler type="top" left={width / 2 - 3} top={-4} onDragStart={onResizeHandlerDragStart} onDragging={onTopHandlerDragging} />
           <DesignerHudWidgetResizeHandler
             type="right"
             top={height / 2 - 3}
