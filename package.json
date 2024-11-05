@@ -1,6 +1,6 @@
 {
   "name": "@ruiapp/designer-hud",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "dist/mod.js",
   "types": "dist/mod.d.ts",
   "sideEffects": false,
