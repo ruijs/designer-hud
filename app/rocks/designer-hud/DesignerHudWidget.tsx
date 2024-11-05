@@ -37,7 +37,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
   const styleIfHovered = isHovered ? styleHoveredItem : {};
   const styleIfActive = isActive ? styleActiveItem : {};
   let copyId = "";
-
+  let shiftPressed = false;
   const onMouseMove = useCallback(
     (event: MouseEvent) => {
       if (!dragStartState) {
@@ -120,6 +120,9 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
       delete: {
         key: "Delete",
       },
+      drag: {
+        key: "Shift",
+      },
     };
 
     if (event.type !== "keydown") return;
@@ -196,18 +199,30 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         type: "delete",
       });
     }
+
+    // drag
+    if (event.key === eventType.drag.key) {
+      shiftPressed = true
+    }
+  };
+
+  const onKeyUp: React.KeyboardEventHandler<HTMLDivElement> = (event) => {
+    if (event.key === "Shift") {
+      shiftPressed = false;
+    }
   };
 
   const onResizeHandlerDragStart: DragStartEventHandler = useCallback((event) => { }, []);
 
   const onTopLeftHandlerDragging = useCallback(
     (event: HudWidgetHandlerDraggingEvent) => {
+      console.log("onTopLeftHandlerDragging", event);
       onWidgetRectChange({
         id: widgetId,
         left: left + event.deltaX,
-        top: top + event.deltaY,
+        top: shiftPressed ? top - ((width - event.deltaX) / width - 1) * height : top + event.deltaY,
         width: Math.max(width - event.deltaX, 0),
-        height: Math.max(height - event.deltaY, 0),
+        height: Math.max(shiftPressed ? ((width - event.deltaX) / width) * height : height - event.deltaY, 0),
       } as HudWidgetRectChangeEvent);
     },
     [onWidgetRectChange, widgetId, left, top, width, height],
@@ -218,9 +233,9 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
       onWidgetRectChange({
         id: widgetId,
         left: left,
-        top: top + event.deltaY,
+        top: shiftPressed ? top - ((width + event.deltaX) / width - 1) * height : top + event.deltaY,
         width: Math.max(width + event.deltaX, 0),
-        height: Math.max(height - event.deltaY, 0),
+        height: Math.max(shiftPressed ? ((width + event.deltaX) / width) * height : height - event.deltaY, 0),
       } as HudWidgetRectChangeEvent);
     },
     [onWidgetRectChange, widgetId, left, top, width, height],
@@ -233,7 +248,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         left: left,
         top: top,
         width: Math.max(width + event.deltaX, 0),
-        height: Math.max(height + event.deltaY, 0),
+        height: Math.max(shiftPressed ? ((width + event.deltaX) / width) * height : height + event.deltaY, 0),
       } as HudWidgetRectChangeEvent);
     },
     [onWidgetRectChange, widgetId, left, top, width, height],
@@ -246,7 +261,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         left: left + event.deltaX,
         top: top,
         width: Math.max(width - event.deltaX, 0),
-        height: Math.max(height + event.deltaY, 0),
+        height: Math.max(shiftPressed ? ((width - event.deltaX) / width) * height : height + event.deltaY, 0),
       } as HudWidgetRectChangeEvent);
     },
     [onWidgetRectChange, widgetId, left, top, width, height],
@@ -258,7 +273,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         id: widgetId,
         left: left,
         top: top + event.deltaY,
-        width: Math.max(width, 0),
+        width: Math.max(shiftPressed ? (((height - event.deltaY) * width) / height) : width, 0),
         height: Math.max(height - event.deltaY, 0),
       } as HudWidgetRectChangeEvent);
     },
@@ -267,12 +282,13 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
 
   const onRightHandlerDragging = useCallback(
     (event: HudWidgetHandlerDraggingEvent) => {
+      console.log("onRightHandlerDragging", shiftPressed);
       onWidgetRectChange({
         id: widgetId,
         left: left,
         top: top,
         width: Math.max(width + event.deltaX, 0),
-        height: Math.max(height, 0),
+        height: Math.max(shiftPressed ? ((width + event.deltaX) * height) / width : height, 0),
       } as HudWidgetRectChangeEvent);
     },
     [onWidgetRectChange, widgetId, left, top, width, height],
@@ -284,7 +300,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         id: widgetId,
         left: left,
         top: top,
-        width: Math.max(width, 0),
+        width: Math.max(shiftPressed ? (((height + event.deltaY) * width) / height) : width, 0),
         height: Math.max(height + event.deltaY, 0),
       } as HudWidgetRectChangeEvent);
     },
@@ -298,7 +314,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
         left: left + event.deltaX,
         top: top,
         width: Math.max(width - event.deltaX, 0),
-        height: Math.max(height, 0),
+        height: Math.max(shiftPressed ? (((width - event.deltaX) * height) / width) : height, 0),
       } as HudWidgetRectChangeEvent);
     },
     [onWidgetRectChange, widgetId, left, top, width, height],
@@ -322,6 +338,7 @@ export default function DesignerHudWidget(props: DesignerHudWidgetProps) {
       }}
       onMouseDown={onMouseDown}
       onKeyDown={onKeyDown}
+      onKeyUp={onKeyUp}
     >
       {isActive && (
         <>
